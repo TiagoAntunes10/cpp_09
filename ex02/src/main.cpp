@@ -1,0 +1,26 @@
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   main.cpp                                           :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: tialbert <tialbert@student.42porto.com>    +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2025/09/01 14:31:48 by tialbert          #+#    #+#             */
+/*   Updated: 2025/09/01 14:33:57 by tialbert         ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
+
+#include "../Include/includes.hpp"
+
+int main(int argc, char **argv) {
+  if (argc != 2) {
+    std::cout << "Error" << std::endl;
+    return (1);
+  }
+
+  try {
+    std::cout << RPN::calculate(argv[1]) << std::endl;
+  } catch (...) {
+    return (1);
+  }
+}
