@@ -20,13 +20,20 @@
 class PmergeMe {
 public:
   PmergeMe(void);
-  PmergeMe(char const **str_arr);
+  PmergeMe(char **str_arr);
   PmergeMe(PmergeMe const &pmerge);
   PmergeMe &operator=(PmergeMe const &pmerge);
   ~PmergeMe(void);
-  void fillContainers(char const **str_arr);
+  void fillContainers(char **str_arr);
   void sortList(void);
-  void sortVector(void);
+  template <class T> void write_container(T begin, T end) {
+    while (begin != end) {
+      std::cout << *begin << " ";
+      begin++;
+    }
+    std::cout << std::endl;
+  }
+  // void sortVector(void);
 
 private:
   std::list<int> _list_cont;

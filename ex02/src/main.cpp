@@ -13,14 +13,12 @@
 #include "../Include/includes.hpp"
 
 int main(int argc, char **argv) {
-  if (argc != 2) {
+  if (argc < 2) {
     std::cout << "Error" << std::endl;
     return (1);
   }
 
-  try {
-    std::cout << RPN::calculate(argv[1]) << std::endl;
-  } catch (...) {
-    return (1);
-  }
+  PmergeMe merge(++argv);
+
+  merge.sortList();
 }

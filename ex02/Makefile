@@ -1,11 +1,11 @@
 LIB = ./Include
 PRE = ./src/
 
-SOURCE = main.cpp RPN.cpp
+SOURCE = main.cpp PmergeMe.cpp
 
 SOURCES = ${addprefix $(PRE), $(SOURCE)}
 
-NAME = RPN
+NAME = PmergeMe
 
 CXX = c++
 CXXFLAGS = -Wall -Wextra -Werror -std=c++98

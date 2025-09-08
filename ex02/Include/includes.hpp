@@ -23,6 +23,7 @@
 #define WHITE "\033[37m"
 
 #include "PmergeMe.hpp"
+#include <cstdlib>
 #include <exception>
 
 #endif
