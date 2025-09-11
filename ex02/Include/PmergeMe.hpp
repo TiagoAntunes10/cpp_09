@@ -30,7 +30,7 @@ public:
     while (begin != end) {
       std::cout << *begin << " ";
       begin++;
-    }
+    };
     std::cout << std::endl;
   }
   // void sortVector(void);

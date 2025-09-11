@@ -43,6 +43,8 @@ static void split_container(std::list<int> const &container,
   int num_elem = container.size() / (1 << level);
 
   for (int i = 0; i < num_elem; i++) {
+    if (!inter[i].empty())
+      inter[i].clear();
     for (int j = 0; j < (1 << level); j++) {
       inter[i].push_back(*begin++);
     }
@@ -53,7 +55,7 @@ static void agg_lists(std::list<int> &container, std::list<int> *inter,
                       int num_elem, int level) {
   std::list<int> agg;
   std::list<int>::const_iterator it_begin = container.begin();
-  std::list<int>::const_iterator it_end = container.begin();
+  std::list<int>::const_iterator it_end = container.end();
 
   agg.swap(inter[0]);
   for (int i = 1; i < num_elem; i++) {
@@ -133,14 +135,21 @@ static void pend_array_shift(std::list<int> *pend_arr, int total_size) {
   }
 }
 
+// FIX: With 5 elements the sorting is incorrect
 static void merge_sort_elements(std::list<int> &container,
                                 std::list<int> *inter, int num_elem,
                                 int level) {
   std::list<int> main[num_elem];
-  int pend_size = num_elem / 2;
-  int main_size = num_elem / 2 + num_elem % 2;
+
+  int pend_size;
+  int main_size = num_elem / 2 + 1;
   int last_op = 0;
   int main_index = 0;
+
+  if (!(num_elem % 2))
+    pend_size = num_elem / 2 - 1;
+  else
+    pend_size = num_elem / 2;
 
   for (int i = 0; i < num_elem; i++) {
     if (i == 0 || i % 2 != 0)
@@ -151,42 +160,47 @@ static void merge_sort_elements(std::list<int> &container,
 
   int jacobs_it = 0;
   int init_main_size = main_size;
+  int init_pend_size = pend_size;
 
   while (pend_size) {
     int jacobs_num = jacobs_gen(jacobs_it + 3);
-    int last_valid_elem = jacobs_num + (init_main_size - main_size);
+    int last_valid_elem = jacobs_num + (main_size - init_main_size);
 
     for (int j = jacobs_gen(jacobs_it + 3) - jacobs_gen(jacobs_it + 2);
          j > 0 && pend_size > 0; j--) {
 
       if (pend_size < j) {
         if (main_size < last_valid_elem && !last_op)
-          last_op = binary_insert(main, inter[pend_size - 1], main_size,
+          last_op = binary_insert(main, inter[pend_size - 1], main_size + 1,
                                   main_size - 1);
         else if (main_size < last_valid_elem && last_op)
-          last_op = binary_insert(main, inter[pend_size - 1], main_size,
+          last_op = binary_insert(main, inter[pend_size - 1], main_size + 1,
                                   main_size - 2);
         else if (!last_op)
-          last_op = binary_insert(main, inter[pend_size - 1], main_size,
+          last_op = binary_insert(main, inter[pend_size - 1], main_size + 1,
                                   jacobs_num - 1);
         else if (last_op)
-          last_op = binary_insert(main, inter[pend_size - 1], main_size,
+          last_op = binary_insert(main, inter[pend_size - 1], main_size + 1,
                                   jacobs_num - 2);
+      } else {
+        if (main_size < jacobs_num && !last_op)
+          last_op =
+              binary_insert(main, inter[j - 1], main_size + 1, main_size - 1);
+        else if (main_size < jacobs_num && last_op)
+          last_op =
+              binary_insert(main, inter[j - 1], main_size + 1, main_size - 2);
+        else if (!last_op)
+          last_op =
+              binary_insert(main, inter[j - 1], main_size + 1, jacobs_num - 1);
+        else if (last_op)
+          last_op =
+              binary_insert(main, inter[j - 1], main_size + 1, jacobs_num - 2);
       }
-
-      if (main_size < jacobs_num && !last_op)
-        last_op = binary_insert(main, inter[j - 1], main_size, main_size - 1);
-      else if (main_size < jacobs_num && last_op)
-        last_op = binary_insert(main, inter[j - 1], main_size, main_size - 2);
-      if (!last_op)
-        last_op = binary_insert(main, inter[j - 1], main_size, jacobs_num - 1);
-      else
-        last_op = binary_insert(main, inter[j - 1], main_size, jacobs_num - 2);
 
       main_size++;
       pend_size--;
     }
-    pend_array_shift(inter, num_elem / 2);
+    pend_array_shift(inter, init_pend_size);
     jacobs_it++;
   }
 
@@ -197,7 +211,10 @@ static void merge_sort_elements(std::list<int> &container,
 static std::list<int> merge_insert(std::list<int> &container, int level) {
   int num_elem = container.size() / (1 << level);
 
-  if (container.size() / (1 << level) == 1)
+  // std::cout << RED << level << " - " << container.size() / (1 << level) <<
+  // END
+  //           << std::endl;
+  if ((container.size() / (1 << level)) == 1)
     return (container);
 
   std::list<int> inter[container.size() / (1 << level)];
@@ -206,6 +223,10 @@ static std::list<int> merge_insert(std::list<int> &container, int level) {
   order_elements(inter, num_elem);
   agg_lists(container, inter, num_elem, level);
   merge_insert(container, level + 1);
+
+  // std::cout << RED << level << " - " << container.size() / (1 << level) <<
+  // END
+  //           << std::endl;
 
   split_container(container, inter, level);
   merge_sort_elements(container, inter, num_elem, level);
@@ -242,12 +263,32 @@ void PmergeMe::fillContainers(char **str_arr) {
   start_containers(str_arr, _list_cont, _vector_cont);
 }
 
+// NOTE: Delete later or make it "silent"/comment
+static bool check_sorting(std::list<int> &cont) {
+  std::list<int>::iterator begin = cont.begin();
+  std::list<int>::iterator step = cont.begin();
+  std::list<int>::iterator end = cont.end();
+  step++;
+
+  while (step != end) {
+    if (*step < *begin)
+      return (false);
+
+    begin++;
+    step++;
+  }
+
+  return (true);
+}
+
 void PmergeMe::sortList(void) {
   std::cout << "before: ";
   write_container(_list_cont.begin(), _list_cont.end());
 
   _list_cont = merge_insert(_list_cont, 0);
 
+  if (!check_sorting(_list_cont))
+    std::cout << RED << "Sorting is wrong" << END << std::endl;
   std::cout << "after: ";
   write_container(_list_cont.begin(), _list_cont.end());
 }
