@@ -11,6 +11,8 @@
 /* ************************************************************************** */
 
 #include "../Include/includes.hpp"
+// TODO: Remove this library
+#include <algorithm>
 
 static bool invalid_int(char const *str) {
   for (; *str != 0; str++) {
@@ -96,21 +98,29 @@ static int jacobs_gen(int order) {
   return (jacobs);
 }
 
-static int binary_insert(std::list<int> *list_arr, std::list<int> value,
+// TODO: Clean commented lines
+static int binary_insert(std::list<int> *list_arr, std::list<int> &value,
                          int main_size, int last_valid_elem) {
   int begin = 0;
   int end = last_valid_elem;
   int middle = (end + begin) / 2;
 
+  // std::cout << BLUE << "Value: " << END << value.back() << "; ";
+  // std::cout << BLUE << "Last valid: " << END << last_valid_elem << std::endl;
+  //
   while (begin < end && list_arr[middle].back() != value.back()) {
     if (list_arr[middle].back() > value.back())
       end = middle - 1;
     else if (list_arr[middle].back() < value.back())
       begin = middle + 1;
     middle = (end + begin) / 2;
-    if (begin > end)
-      middle = begin;
+    // std::cout << GREEN << "Begin: " << END << begin << "; ";
+    // std::cout << GREEN << "Middle: " << END << middle << "; ";
+    // std::cout << GREEN << "End: " << END << end << std::endl;
   }
+
+  if (list_arr[middle].back() < value.back())
+    middle++;
 
   while (main_size > middle) {
     if (!list_arr[main_size - 1].empty())
@@ -120,7 +130,7 @@ static int binary_insert(std::list<int> *list_arr, std::list<int> value,
 
   list_arr[middle].swap(value);
 
-  if (begin > end)
+  if (begin > last_valid_elem)
     return (1);
   else
     return (0);
@@ -135,7 +145,8 @@ static void pend_array_shift(std::list<int> *pend_arr, int total_size) {
   }
 }
 
-// FIX: With 5 elements the sorting is incorrect
+// FIX: With >= 7 elements some numbers go missing and other numbers repeat
+// (copies have a problem)
 static void merge_sort_elements(std::list<int> &container,
                                 std::list<int> *inter, int num_elem,
                                 int level) {
@@ -143,7 +154,6 @@ static void merge_sort_elements(std::list<int> &container,
 
   int pend_size;
   int main_size = num_elem / 2 + 1;
-  int last_op = 0;
   int main_index = 0;
 
   if (!(num_elem % 2))
@@ -165,9 +175,10 @@ static void merge_sort_elements(std::list<int> &container,
   while (pend_size) {
     int jacobs_num = jacobs_gen(jacobs_it + 3);
     int last_valid_elem = jacobs_num + (main_size - init_main_size);
+    int last_op = 0;
 
-    for (int j = jacobs_gen(jacobs_it + 3) - jacobs_gen(jacobs_it + 2);
-         j > 0 && pend_size > 0; j--) {
+    for (int j = jacobs_num - jacobs_gen(jacobs_it + 2); j > 0 && pend_size > 0;
+         j--) {
 
       if (pend_size < j) {
         if (main_size < last_valid_elem && !last_op)
@@ -178,10 +189,10 @@ static void merge_sort_elements(std::list<int> &container,
                                   main_size - 2);
         else if (!last_op)
           last_op = binary_insert(main, inter[pend_size - 1], main_size + 1,
-                                  jacobs_num - 1);
+                                  last_valid_elem - 1);
         else if (last_op)
           last_op = binary_insert(main, inter[pend_size - 1], main_size + 1,
-                                  jacobs_num - 2);
+                                  last_valid_elem - 2);
       } else {
         if (main_size < jacobs_num && !last_op)
           last_op =
@@ -190,11 +201,11 @@ static void merge_sort_elements(std::list<int> &container,
           last_op =
               binary_insert(main, inter[j - 1], main_size + 1, main_size - 2);
         else if (!last_op)
-          last_op =
-              binary_insert(main, inter[j - 1], main_size + 1, jacobs_num - 1);
+          last_op = binary_insert(main, inter[j - 1], main_size + 1,
+                                  last_valid_elem - 1);
         else if (last_op)
-          last_op =
-              binary_insert(main, inter[j - 1], main_size + 1, jacobs_num - 2);
+          last_op = binary_insert(main, inter[j - 1], main_size + 1,
+                                  last_valid_elem - 2);
       }
 
       main_size++;
@@ -211,9 +222,6 @@ static void merge_sort_elements(std::list<int> &container,
 static std::list<int> merge_insert(std::list<int> &container, int level) {
   int num_elem = container.size() / (1 << level);
 
-  // std::cout << RED << level << " - " << container.size() / (1 << level) <<
-  // END
-  //           << std::endl;
   if ((container.size() / (1 << level)) == 1)
     return (container);
 
@@ -264,31 +272,53 @@ void PmergeMe::fillContainers(char **str_arr) {
 }
 
 // NOTE: Delete later or make it "silent"/comment
-static bool check_sorting(std::list<int> &cont) {
+static int check_sorting(std::list<int> &cont, std::list<int> &cpy) {
   std::list<int>::iterator begin = cont.begin();
   std::list<int>::iterator step = cont.begin();
   std::list<int>::iterator end = cont.end();
+  std::list<int>::iterator cpy_begin = cpy.begin();
+  std::list<int>::iterator cpy_end = cpy.end();
+  std::list<int>::iterator it;
+
   step++;
 
+  if (cont.size() != cpy.size())
+    return (3);
+
+  for (; cpy_begin != cpy_end; cpy_begin++) {
+    it = std::find(cont.begin(), end, *cpy_begin);
+    if (it == end)
+      return (1);
+  }
+
   while (step != end) {
-    if (*step < *begin)
-      return (false);
+    if (*step < *begin) {
+      std::cout << BLUE << *step << " < " << *begin << " - " << END;
+      return (2);
+    }
 
     begin++;
     step++;
   }
 
-  return (true);
+  return (0);
 }
 
 void PmergeMe::sortList(void) {
   std::cout << "before: ";
   write_container(_list_cont.begin(), _list_cont.end());
 
+  std::list<int> cpy = _list_cont;
+
   _list_cont = merge_insert(_list_cont, 0);
 
-  if (!check_sorting(_list_cont))
+  int error = check_sorting(_list_cont, cpy);
+  if (error == 1)
+    std::cout << RED << "One element is missing" << END << std::endl;
+  else if (error == 2)
     std::cout << RED << "Sorting is wrong" << END << std::endl;
+  else if (error == 3)
+    std::cout << RED << "Size was changed" << END << std::endl;
   std::cout << "after: ";
   write_container(_list_cont.begin(), _list_cont.end());
 }
