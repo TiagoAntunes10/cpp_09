@@ -38,6 +38,7 @@ public:
 private:
   std::list<int> _list_cont;
   std::vector<int> _vector_cont;
+  size_t _size;
 };
 
 #endif

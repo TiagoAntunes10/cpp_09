@@ -24,8 +24,10 @@ static bool invalid_int(char const *str) {
 }
 
 static void start_containers(char **arr, std::list<int> &list,
-                             std::vector<int> &vector) {
+                             std::vector<int> &vector, size_t &size) {
   int num;
+
+  size = 0;
 
   for (; *arr != NULL; arr++) {
     if (invalid_int(*arr))
@@ -36,6 +38,7 @@ static void start_containers(char **arr, std::list<int> &list,
 
     list.push_back(num);
     vector.push_back(num);
+    size++;
   }
 }
 
@@ -245,7 +248,7 @@ static std::list<int> merge_insert(std::list<int> &container, int level) {
 PmergeMe::PmergeMe(void) { return; }
 
 PmergeMe::PmergeMe(char **str_arr) {
-  start_containers(str_arr, _list_cont, _vector_cont);
+  start_containers(str_arr, _list_cont, _vector_cont, _size);
 }
 
 // TODO: Ensure this does a deep copy
@@ -268,7 +271,7 @@ void PmergeMe::fillContainers(char **str_arr) {
   if (_list_cont.empty() && _vector_cont.empty())
     throw std::exception();
 
-  start_containers(str_arr, _list_cont, _vector_cont);
+  start_containers(str_arr, _list_cont, _vector_cont, _size);
 }
 
 // NOTE: Delete later or make it "silent"/comment
@@ -305,12 +308,18 @@ static int check_sorting(std::list<int> &cont, std::list<int> &cpy) {
 }
 
 void PmergeMe::sortList(void) {
+  time_t start;
+  float duration;
+
   std::cout << "before: ";
   write_container(_list_cont.begin(), _list_cont.end());
 
   std::list<int> cpy = _list_cont;
 
+  start = time(NULL);
   _list_cont = merge_insert(_list_cont, 0);
+
+  duration = difftime(time(NULL), start) * 1000000;
 
   int error = check_sorting(_list_cont, cpy);
   if (error == 1)
@@ -321,6 +330,9 @@ void PmergeMe::sortList(void) {
     std::cout << RED << "Size was changed" << END << std::endl;
   std::cout << "after: ";
   write_container(_list_cont.begin(), _list_cont.end());
+
+  std::cout << "Time to process a range of " << _size
+            << " with std::list: " << duration << " us" << std::endl;
 }
 
 // void PmergeMe::sortVector(void) {}

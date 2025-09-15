@@ -24,6 +24,7 @@
 
 #include "PmergeMe.hpp"
 #include <cstdlib>
+#include <ctime>
 #include <exception>
 
 #endif
