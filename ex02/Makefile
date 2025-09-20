@@ -1,7 +1,7 @@
 LIB = ./Include
 PRE = ./src/
 
-SOURCE = main.cpp PmergeMe.cpp
+SOURCE = main.cpp PmergeMe.cpp listSort.cpp vectorSort.cpp
 
 SOURCES = ${addprefix $(PRE), $(SOURCE)}
 

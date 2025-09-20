@@ -18,7 +18,12 @@ int main(int argc, char **argv) {
     return (1);
   }
 
-  PmergeMe merge(++argv);
+  try {
+    PmergeMe merge(++argv);
 
-  merge.sortList();
+    merge.sortList();
+    merge.sortVector();
+  } catch (...) {
+    return (1);
+  }
 }
