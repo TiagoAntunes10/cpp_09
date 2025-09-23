@@ -18,16 +18,10 @@
 
 class RPN {
 public:
-  // RPN(std::string input);
-  // RPN(RPN const &rpn);
-  // RPN &operator=(RPN const &rpn);
-  // ~RPN(void);
   static int calculate(std::string input);
-  // void calculate(void);
 
 private:
   RPN(void);
-  // std::queue<std::string> _cache;
 };
 
 #endif
