@@ -11,9 +11,7 @@
 /* ************************************************************************** */
 
 #include "../Include/includes.hpp"
-// TODO: Remove this library
-#include <algorithm>
-#include <ctime>
+// #include <algorithm>
 
 static bool invalid_int(char const *str) {
   for (; *str != 0; str++) {
@@ -54,13 +52,11 @@ PmergeMe::PmergeMe(char **str_arr) {
   }
 }
 
-// TODO: Ensure this does a deep copy
 PmergeMe::PmergeMe(PmergeMe const &pmerge) {
   this->_list_cont = pmerge._list_cont;
   this->_vector_cont = pmerge._vector_cont;
 }
 
-// TODO: Ensure this does a deep copy
 PmergeMe &PmergeMe::operator=(PmergeMe const &pmerge) {
   this->_list_cont = pmerge._list_cont;
   this->_vector_cont = pmerge._vector_cont;
@@ -82,36 +78,35 @@ void PmergeMe::fillContainers(char **str_arr) {
   }
 }
 
-// NOTE: Delete later or make it "silent"/comment
-template <class T>
-int check_sorting(T begin, T end, T cpy_begin, T cpy_end, size_t size1,
-                  size_t size2) {
-  T step = begin;
-  T it;
-
-  step++;
-
-  if (size1 != size2)
-    return (3);
-
-  for (; cpy_begin != cpy_end; cpy_begin++) {
-    it = std::find(begin, end, *cpy_begin);
-    if (it == end)
-      return (1);
-  }
-
-  while (step != end) {
-    if (*step < *begin) {
-      std::cout << BLUE << *step << " < " << *begin << " - " << END;
-      return (2);
-    }
-
-    begin++;
-    step++;
-  }
-
-  return (0);
-}
+// template <class T>
+// int check_sorting(T begin, T end, T cpy_begin, T cpy_end, size_t size1,
+//                   size_t size2) {
+//   T step = begin;
+//   T it;
+//
+//   step++;
+//
+//   if (size1 != size2)
+//     return (3);
+//
+//   for (; cpy_begin != cpy_end; cpy_begin++) {
+//     it = std::find(begin, end, *cpy_begin);
+//     if (it == end)
+//       return (1);
+//   }
+//
+//   while (step != end) {
+//     if (*step < *begin) {
+//       std::cout << BLUE << *step << " < " << *begin << " - " << END;
+//       return (2);
+//     }
+//
+//     begin++;
+//     step++;
+//   }
+//
+//   return (0);
+// }
 
 static inline float running_time(clock_t start) {
   float duration;
@@ -143,14 +138,16 @@ void PmergeMe::sortList(void) {
 
   duration = running_time(start);
 
-  int error = check_sorting(_list_cont.begin(), _list_cont.end(), cpy.begin(),
-                            cpy.end(), _list_cont.size(), cpy.size());
-  if (error == 1)
-    std::cout << RED << "One element is missing" << END << std::endl;
-  else if (error == 2)
-    std::cout << RED << "Sorting is wrong" << END << std::endl;
-  else if (error == 3)
-    std::cout << RED << "Size was changed" << END << std::endl;
+  // int error = check_sorting(_list_cont.begin(), _list_cont.end(),
+  // cpy.begin(),
+  //                           cpy.end(), _list_cont.size(), cpy.size());
+  // if (error == 1)
+  //   std::cout << RED << "One element is missing" << END << std::endl;
+  // else if (error == 2)
+  //   std::cout << RED << "Sorting is wrong" << END << std::endl;
+  // else if (error == 3)
+  //   std::cout << RED << "Size was changed" << END << std::endl;
+
   std::cout << "after: ";
   write_container(_list_cont.begin(), _list_cont.end());
 
@@ -168,15 +165,15 @@ void PmergeMe::sortVector(void) {
 
   duration = running_time(start);
 
-  int error =
-      check_sorting(_vector_cont.begin(), _vector_cont.end(), cpy.begin(),
-                    cpy.end(), _vector_cont.size(), cpy.size());
-  if (error == 1)
-    std::cout << RED << "One element is missing" << END << std::endl;
-  else if (error == 2)
-    std::cout << RED << "Sorting is wrong" << END << std::endl;
-  else if (error == 3)
-    std::cout << RED << "Size was changed" << END << std::endl;
+  // int error =
+  //     check_sorting(_vector_cont.begin(), _vector_cont.end(), cpy.begin(),
+  //                   cpy.end(), _vector_cont.size(), cpy.size());
+  // if (error == 1)
+  //   std::cout << RED << "One element is missing" << END << std::endl;
+  // else if (error == 2)
+  //   std::cout << RED << "Sorting is wrong" << END << std::endl;
+  // else if (error == 3)
+  //   std::cout << RED << "Size was changed" << END << std::endl;
 
   write_run_information("vector", _size, duration);
 }
