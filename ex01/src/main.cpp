@@ -13,13 +13,15 @@
 #include "../Include/includes.hpp"
 
 int main(int argc, char **argv) {
+  RPN rpn;
+
   if (argc != 2) {
     std::cout << "Error: Wrong number of arguments" << std::endl;
     return (1);
   }
 
   try {
-    std::cout << RPN::calculate(argv[1]) << std::endl;
+    std::cout << rpn.calculate(argv[1]) << std::endl;
   } catch (...) {
     return (1);
   }

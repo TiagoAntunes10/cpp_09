@@ -12,6 +12,17 @@
 
 #include "../Include/includes.hpp"
 
+RPN::RPN(void) { return; }
+
+RPN::RPN(RPN const &rpn) { (*this) = rpn; }
+
+RPN &RPN::operator=(RPN const &rpn) {
+  (void)rpn;
+  return (*this);
+}
+
+RPN::~RPN(void) { return; }
+
 static int find_op(int a, int b, std::string op) {
   int res;
 
