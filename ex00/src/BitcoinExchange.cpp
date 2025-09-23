@@ -46,9 +46,19 @@ static bool invalid_num(float num) {
 }
 
 static BitcoinExchange::iterator find_middle(BitcoinExchange::iterator it,
-                                             BitcoinExchange::size_type size) {
-  for (BitcoinExchange::size_type i = 0; i < size; i++)
-    it++;
+                                             BitcoinExchange::size_type size,
+                                             int direction) {
+  if (direction > 0) {
+    for (BitcoinExchange::size_type i = 0; i < size; i++)
+      it++;
+    if (size == 0)
+      it++;
+  } else {
+    for (BitcoinExchange::size_type i = 0; i < size; i++)
+      it--;
+    if (size == 0)
+      it--;
+  }
 
   return (it);
 }
@@ -56,22 +66,22 @@ static BitcoinExchange::iterator find_middle(BitcoinExchange::iterator it,
 static BitcoinExchange::iterator
 map_bi_search(std::map<std::string, float> info, std::string date) {
   BitcoinExchange::iterator begin = info.begin();
-  BitcoinExchange::iterator end = info.end()--;
+  BitcoinExchange::iterator end = --info.end();
   BitcoinExchange::size_type size = info.size();
-  BitcoinExchange::iterator middle = find_middle(info.begin(), size / 2);
+  BitcoinExchange::iterator middle = find_middle(info.begin(), size / 2, 1);
   int i = 2;
 
-  while (middle != begin && middle != end) {
+  while (middle != begin && middle != end && begin != end) {
     if (date.compare(middle->first) > 0) {
-      middle++;
       begin = middle;
-      middle = find_middle(middle, size / i);
-      i = i << 1;
+      if (i < 2048)
+        i = i << 1;
+      middle = find_middle(middle, size / i, 1);
     } else if (date.compare(middle->first) < 0) {
-      middle--;
       end = middle;
-      middle = find_middle(begin, size / i);
-      i = i << 1;
+      if (i < 2048)
+        i = i << 1;
+      middle = find_middle(middle, size / i, -1);
     } else
       return (middle);
   }
