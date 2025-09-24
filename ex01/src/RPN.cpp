@@ -53,7 +53,7 @@ int RPN::calculate(std::string input) {
   std::string tmp;
   std::stack<int> cache;
 
-  if (cache.size() > 1) {
+  if (input.empty()) {
     std::cout << "Error" << std::endl;
     throw std::exception();
   }
@@ -101,8 +101,5 @@ int RPN::calculate(std::string input) {
     throw std::exception();
   }
 
-  if (cache.size() == 1 && input.size() == 1)
-    return (cache.top());
-
-  return (res);
+  return (cache.top());
 }
