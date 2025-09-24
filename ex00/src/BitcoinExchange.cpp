@@ -12,6 +12,30 @@
 
 #include "../Include/includes.hpp"
 
+static bool invalid_day(int day, int month) {
+  if (day <= 0 || day > 31)
+    return true;
+
+  if (month <= 7) {
+    if (month == 2) {
+      if (day > 29)
+        return (true);
+    } else if (month % 2 == 0) {
+      if (day > 30)
+        return (true);
+    }
+  }
+
+  if (month > 7) {
+    if (month % 2 != 0) {
+      if (day > 30)
+        return (true);
+    }
+  }
+
+  return (false);
+}
+
 static bool invalid_date(std::string date, std::map<std::string, float> info) {
   BitcoinExchange::iterator begin = info.begin();
   BitcoinExchange::iterator end = info.end();
@@ -29,6 +53,21 @@ static bool invalid_date(std::string date, std::map<std::string, float> info) {
         return true;
     }
   }
+
+  size_t first_hifen;
+  size_t last_hifen;
+
+  first_hifen = date.find_first_of("-");
+  last_hifen = date.find_last_of("-");
+
+  int month = atoi(date.substr(first_hifen + 1, 2).c_str());
+  int day = atoi(date.substr(last_hifen + 1, 2).c_str());
+
+  if (month > 12 || month <= 0)
+    return (true);
+
+  if (invalid_day(day, month))
+    return (true);
 
   return false;
 }
