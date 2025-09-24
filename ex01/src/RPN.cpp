@@ -47,11 +47,16 @@ static int find_op(int a, int b, std::string op) {
 }
 
 int RPN::calculate(std::string input) {
-  int a;
-  int b;
-  int res;
+  int a = 0;
+  int b = 0;
+  int res = 0;
   std::string tmp;
   std::stack<int> cache;
+
+  if (cache.size() > 1) {
+    std::cout << "Error" << std::endl;
+    throw std::exception();
+  }
 
   for (unsigned int i = 0; i < input.size(); i++) {
     if (i % 2 == 0) {
@@ -60,7 +65,7 @@ int RPN::calculate(std::string input) {
       if (isdigit(tmp[0]))
         cache.push(std::atoi(tmp.c_str()));
       else {
-        if (cache.empty()) {
+        if (cache.empty() || cache.size() < 2) {
           std::cout << "Error" << std::endl;
           throw std::exception();
         }
@@ -90,6 +95,14 @@ int RPN::calculate(std::string input) {
       }
     }
   }
+
+  if (cache.size() > 1) {
+    std::cout << "Error" << std::endl;
+    throw std::exception();
+  }
+
+  if (cache.size() == 1 && input.size() == 1)
+    return (cache.top());
 
   return (res);
 }
