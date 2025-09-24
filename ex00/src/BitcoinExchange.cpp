@@ -84,7 +84,7 @@ static bool invalid_num(float num) {
   return false;
 }
 
-static BitcoinExchange::iterator find_middle(BitcoinExchange::iterator it,
+static BitcoinExchange::iterator find_middle(BitcoinExchange::iterator &it,
                                              BitcoinExchange::size_type size,
                                              int direction) {
   if (direction > 0) {
@@ -102,12 +102,13 @@ static BitcoinExchange::iterator find_middle(BitcoinExchange::iterator it,
   return (it);
 }
 
-static BitcoinExchange::iterator
-map_bi_search(std::map<std::string, float> info, std::string date) {
-  BitcoinExchange::iterator begin = info.begin();
-  BitcoinExchange::iterator end = --info.end();
+static BitcoinExchange::iterator &
+map_bi_search(BitcoinExchange::iterator &begin, BitcoinExchange::iterator &end,
+              BitcoinExchange::iterator &middle,
+              std::map<std::string, float> info, std::string date) {
   BitcoinExchange::size_type size = info.size();
-  BitcoinExchange::iterator middle = find_middle(info.begin(), size / 2, 1);
+
+  end--;
   int i = 2;
 
   while (middle != begin && middle != end && begin != end) {
@@ -128,9 +129,11 @@ map_bi_search(std::map<std::string, float> info, std::string date) {
   return (begin);
 }
 
+// FIX: There is an error on line 175, when I access the value inside the
+// iterator (valgrind)
 static void read_data(std::map<std::string, float> info, std::string line) {
   std::string key;
-  float value;
+  float value = 0;
   std::string::size_type begin;
   std::string::size_type end;
   BitcoinExchange::iterator it;
@@ -169,7 +172,8 @@ static void read_data(std::map<std::string, float> info, std::string line) {
     return;
   }
 
-  it = map_bi_search(info, key);
+  it = map_bi_search(info.begin(), info.end(), info,
+                     find_middle(info.begin(), info.size() / 2, 1), key);
   result = it->second * value;
   std::cout << key << " => " << value << " = " << result << std::endl;
 }
