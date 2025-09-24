@@ -12,14 +12,19 @@
 
 #include "../Include/includes.hpp"
 
-static bool invalid_day(int day, int month) {
+static bool invalid_day(int day, int month, int year) {
   if (day <= 0 || day > 31)
     return true;
 
   if (month <= 7) {
     if (month == 2) {
-      if (day > 29)
-        return (true);
+      if (year % 400 == 0 || (year % 4 == 0 && year % 100 != 0)) {
+        if (day > 29)
+          return (true);
+      } else {
+        if (day > 28)
+          return (true);
+      }
     } else if (month % 2 == 0) {
       if (day > 30)
         return (true);
@@ -60,13 +65,14 @@ static bool invalid_date(std::string date, std::map<std::string, float> info) {
   first_hifen = date.find_first_of("-");
   last_hifen = date.find_last_of("-");
 
+  int year = atoi(date.substr(0, 4).c_str());
   int month = atoi(date.substr(first_hifen + 1, 2).c_str());
   int day = atoi(date.substr(last_hifen + 1, 2).c_str());
 
   if (month > 12 || month <= 0)
     return (true);
 
-  if (invalid_day(day, month))
+  if (invalid_day(day, month, year))
     return (true);
 
   return false;
@@ -84,7 +90,7 @@ static bool invalid_num(float num) {
   return false;
 }
 
-static BitcoinExchange::iterator find_middle(BitcoinExchange::iterator &it,
+static BitcoinExchange::iterator find_middle(BitcoinExchange::iterator it,
                                              BitcoinExchange::size_type size,
                                              int direction) {
   if (direction > 0) {
@@ -102,13 +108,13 @@ static BitcoinExchange::iterator find_middle(BitcoinExchange::iterator &it,
   return (it);
 }
 
-static BitcoinExchange::iterator &
-map_bi_search(BitcoinExchange::iterator &begin, BitcoinExchange::iterator &end,
-              BitcoinExchange::iterator &middle,
-              std::map<std::string, float> info, std::string date) {
+static float map_bi_search(std::map<std::string, float> info,
+                           std::string date) {
+  BitcoinExchange::iterator begin = info.begin();
+  BitcoinExchange::iterator end = --info.end();
   BitcoinExchange::size_type size = info.size();
+  BitcoinExchange::iterator middle = find_middle(begin, size / 2, 1);
 
-  end--;
   int i = 2;
 
   while (middle != begin && middle != end && begin != end) {
@@ -123,22 +129,20 @@ map_bi_search(BitcoinExchange::iterator &begin, BitcoinExchange::iterator &end,
         i = i << 1;
       middle = find_middle(middle, size / i, -1);
     } else
-      return (middle);
+      return (middle->second);
   }
 
-  return (begin);
+  return (begin->second);
 }
 
-// FIX: There is an error on line 175, when I access the value inside the
-// iterator (valgrind)
 static void read_data(std::map<std::string, float> info, std::string line) {
   std::string key;
   float value = 0;
   std::string::size_type begin;
   std::string::size_type end;
-  BitcoinExchange::iterator it;
   std::string num;
   float result;
+  float price;
 
   if (line.find(" | ") == std::string::npos) {
     std::cout << "Error: bad input => " << line << std::endl;
@@ -172,9 +176,8 @@ static void read_data(std::map<std::string, float> info, std::string line) {
     return;
   }
 
-  it = map_bi_search(info.begin(), info.end(), info,
-                     find_middle(info.begin(), info.size() / 2, 1), key);
-  result = it->second * value;
+  price = map_bi_search(info, key);
+  result = price * value;
   std::cout << key << " => " << value << " = " << result << std::endl;
 }
 
