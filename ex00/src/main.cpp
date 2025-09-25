@@ -13,15 +13,19 @@
 #include "../Include/includes.hpp"
 
 int main(int argc, char **argv) {
-  BitcoinExchange btc("data.csv");
+  try {
+    BitcoinExchange btc("data.csv");
 
-  if (argc > 2) {
-    std::cout << "Error: Incorrect number of inputs" << std::endl;
-    return (1);
-  } else if (argc < 2) {
-    std::cout << "Error: could not open file" << std::endl;
+    if (argc > 2) {
+      std::cout << "Error: Incorrect number of inputs" << std::endl;
+      return (1);
+    } else if (argc < 2) {
+      std::cout << "Error: could not open file" << std::endl;
+      return (1);
+    }
+
+    btc.convert(argv[1]);
+  } catch (...) {
     return (1);
   }
-
-  btc.convert(argv[1]);
 }

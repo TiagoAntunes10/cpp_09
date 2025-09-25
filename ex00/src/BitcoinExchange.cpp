@@ -191,9 +191,8 @@ BitcoinExchange::BitcoinExchange(std::string file) {
   std::string num;
   std::string::size_type pos;
 
-  try {
-    open_file.open(file.c_str());
-  } catch (std::exception &e) {
+  open_file.open(file.c_str());
+  if (!open_file.is_open()) {
     std::cout << "Error: could not open file" << std::endl;
     throw std::exception();
   }
